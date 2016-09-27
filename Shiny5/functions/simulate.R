@@ -20,7 +20,7 @@
       out <- data.frame(
         Name = c(
           "(Intercept)", 
-          as.character(getParams("cov_nm", input))
+          tolower(as.character(getParams("cov_nm", input)))
         ),
         Value = c(
           input$inter,

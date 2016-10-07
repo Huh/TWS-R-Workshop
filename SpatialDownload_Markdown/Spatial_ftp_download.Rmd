@@ -1,0 +1,244 @@
+---
+title: "Spatial Download Script"
+author: "Josh Nowak"
+date: "September 29, 2016"
+output: html_document
+---
+
+<!-- Below we insert a horizontal line using three asteriks -->
+***
+<!-- This is a comment in markdown -->
+<!-- Below we use html headers by specifying the hash tags -->
+### This is a markdown document
+
+[Markdown](https://daringfireball.net/projects/markdown/) is a simple text to html conversion tool.  This tool is not R specific, but was made availble to R users through the work of [Yihui Xie](http://yihui.name/), the good folks at 
+[RStudio](http://rmarkdown.rstudio.com/) and many others.  Markdown documents are simple by design.  You can alter you text by writing in *italics*, **bold**, superscript^2^ and using html headers or directly inserting html.
+
+<b>This is html...it is only scary because it's new =)-</b>
+
+Because markdown renders html you can use all of the [HTML Widgets](http://www.htmlwidgets.org/) or any other package or tool that renders HTML.  These widgets can make your plots interactive and generally enhance your ability to convey information while making your documents pretty.
+
+A very relevant feature of markdown is how we insert code into these documents.  We have two options, we can insert code inline `2 + 5` or write it in blocks
+
+```{r, eval = F}
+foo <- 2 + 5
+bar <- 3
+foo/bar
+```
+
+We always have the option to just show code (like we did above) or evaluate code.  For example, the sum of 2 and 5 is `r 2 + 5` or even
+
+```{r}
+2 + 5
+```
+
+***
+
+Another thing you should know is that this type of document can be converted to several other formats, made into a presentation and more...
+
+<!-- Examples of lists -->
+<!-- Unordered -->
+* Documents
+    + PDF
+    + Word
+  
+<!-- Ordered -->
+1. Presentations
+    + Beamer
+    + Slidify
+    + HTML5 Slides
+        + Yeah, no Microsoft
+2. Other
+    + Websites (like this GitHub page)
+    + Dashboards
+    + Books
+    + Scientific articles
+    + Shiny applications
+    + And more...
+  
+
+> That is it for this quick introduction.  If you need more help you can visit the RStudio site linked above or get the cheat sheet from [this link](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).  Let's move on to the purpose of this document.
+
+***
+
+### Spatial data download
+**Know thy data**
+Before you work with any data you must understand it.  The SNODAS data that we are working with here is defined at [this url](http://nsidc.org/data/docs/noaa/g02158_snodas_snow_cover_model/#DailyTable).  You can follow along with the code below, but to truly understand why each step was done and in part how, you will need to read that webpage.
+
+In order to download data we first need to know where the data is stored.  The online address of this storage location can be a URL, FTP or even an API.  Today we will work with an FTP site.  I should also note that we will be doing things *manually* to maximize the transparency of the steps, but know that it can all be automated.
+
+MODIS data is hosted on a ftp site located at [https://lpdaac.usgs.gov/data_access/data_pool](https://lpdaac.usgs.gov/data_access/data_pool).  The same can be said for SNODAS, [ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/](ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/).  Let's proceed with the SNODAS data.
+
+
+***
+
+
+#### Create a directory to store the data
+
+First we will create a directory where we can store the data we download.
+
+```{r}
+  #  Create an object pointing to your new directory
+  my_dir <- "C:/sp_example"  
+
+  #  Check if our directory exists - useful when we want to control
+  #   overwriting
+  dir.exists(my_dir)
+
+  #  Create a directory - Windows specific directory location, change for other   #   OS ( e.g. dir.create("~/etc/sp_example") )
+  dir.create(my_dir)
+
+  #  Check if our directory exists
+  dir.exists(my_dir)
+```
+
+
+***
+
+
+#### Download the data
+The data are stored in a hierarchical folder structure that is convenient for generating names on the fly.  The base url is:
+
+* ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/
+
+The next level of directories show us the year.  I chose 2015, so the new url looks like:
+
+* ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/2015/
+
+The next level is the month.  I chose January, but notice the format is a two digit number followed by an underscore and then the three letter abbreviation for the month.
+
+*  ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/2015/01_Jan/
+
+Now we can see the actual data files for each day of the month.  The naming convention is perfectly consistent.  The name consists of *SNODAS_unmasked_* followed by the four digit year, 2 digit month and the 2 digit day of the month.  Our final url looks like:
+
+*  ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/2015/01_Jan/SNODAS_unmasked_20150102.tar
+
+> Note that we should think about how to code this without having to write out all the filenames.   We can start thinking about how this workflow might be put into functions by specifying some of the arguments we will need later.  One technique that might help us think about this is to decompose the folder structure and file names into their pieces.  In this example we have year, month and day.  Those are all parts of a date, so maybe we should start with a date and modify as needed. 
+
+```{r}
+  #  Date of interest - January 02, 2015
+  dt <- as.Date("2015-01-02")
+```
+
+With the date defined we can now create the file name and download the data.
+
+```{r}
+  #  Create file name
+  fname <- paste0("SNODAS_unmasked_", format(dt, "%Y%m%d"), ".tar")
+  #print(fname)
+
+  #  Download file from ftp site and save it to the directory we created above
+  download.file(
+    paste0(
+      "ftp://sidads.colorado.edu/DATASETS/NOAA/G02158/unmasked/2015/01_Jan/",
+      fname
+    ),
+    mode = "wb",
+    destfile = file.path(my_dir, fname)
+  )
+
+```
+
+
+***
+
+
+With our file downloaded we now face the problem of dealing with a compressed file.  Luckily we have several tools for working with compressed files.  The original file is a .tar file and the unpacking function is called untar.
+
+```{r}
+  #  Untar the file
+  untar(file.path(my_dir, fname), exdir = my_dir)
+```
+
+
+***
+
+
+Now we should take a look at what that did.  Since we saved the extracted files to *my_dir* we can simply list those files.
+
+```{r}
+  list.files(my_dir)
+```
+
+Ahhh, we created a bunch of files.  Looking at the documentation for the data we see that the naming convention for the snow depth data includes *ssmv11036tS*.  We can subset the list to that file, but then we also have to deal with the .gz file type.  Not unlike .tar there is a nice function that helps us deal with that.
+
+```{r}
+  #  Start by subsetting our list of files to the desired file
+  snow_depth_file <- list.files(my_dir, pattern = ".*ssmv11036tS.*.dat.gz")
+
+  #  Now that we have the file name we want we need to convert the .gz to a 
+  #   more friendly format.  
+  #  Establish a connection to the file
+  depth_con  <- gzcon(file(file.path(my_dir, snow_depth_file), "rb"))
+  
+  #  Once the connection is made we can read the binary data.
+  #  We found out the 
+  depth_unscaled <- readBin(
+    depth_con, 
+    integer(), 
+    n = 8192 * 4096, 
+    size = 2,
+    signed = TRUE, 
+    endian = "big"
+  )
+  
+  #  The data are scaled, so we need to divide by 1,000 per the documentation
+  depth <- depth_unscaled/1000
+  
+  #  These objects are big, so close connection and remove unscaled data from 
+  #   memory
+  close(depth_con);rm(depth_unscaled);gc()
+```
+
+Our data are now a vector, but we need a flat data format with the number of columns and rows that the SNODAS website told us it should have.  Recall that we should have 8,192 columns and 4,096 rows.  That is one big matrix.
+
+```{r}
+  #  Ok, we have a large numeric vector and we need some square, use a matrix 
+  #   for the sake of memory efficiency
+  snow_mat <- matrix(depth, nrow = 4096, ncol = 8192, byrow = T)
+```
+
+This is about spatial data right?  Finally we can create a raster using our data and the wonderful [raster package](https://cran.r-project.org/web/packages/raster/raster.pdf).  An important resource when working with spatial data in R is [http://spatialreference.org/](http://spatialreference.org/).  This is where you can find all the projection definitions that you will ever need.  In this case our documentation tells us that the projection is Geographic (lat/long) and the datum is WGS84.  EPSG 4326 should be a good choice for this data.  It is defined by the following proj4 string *+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs*.
+
+```{r}
+  #  Load raster package
+  require(raster)
+
+  #  Create a raster form the matrix by specifying the projection and the
+  #   extent of the raster (xmn = minimum x value, xmx = maximum x value...)
+  r <- raster(
+    snow_mat, 
+    crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+    xmn = -130.5171,
+    xmx = -62.2504,
+    ymn = 24.0996,
+    ymx = 58.2329
+  )
+  
+  #  Show print method for rasters
+  r
+```
+
+Finally some real spatial data.  But of course it is never in the right 
+projection and I don't need the whole US and etc.  Now we will proceed to crop the image down to the state of ID and reproject to Idaho Transverse Mercator.  We want to keep a copy of the WGS 84 data though because that is what all of our cool web tools use and it is a very common projection.
+
+```{r}
+  #  By not specifying the extension I get the default R format, which is nice
+  #   and small.  If I needed a tif or other format I can specify that, ?raster
+  writeRaster(r, file = file.path(my_dir, "wgs84_snow"))
+```
+
+Before we reproject we will crop the raster.  We always want to think about doing operations in an order that makes sense.  Typically that means asking how long operations take and how much memory they consume.  As a rule of thumb I will make a raster smaller first and then do calculations.
+
+```{r}
+  #  Load Idaho shapefile in WGS84
+  #  Crop raster to shapefile
+  #  Create centered and scaled raster
+  #  Extract raster values at fake xy coordinates
+```
+
+
+
+As to reprojecting rasters there are some seriously intense calculations that can take a very long time to complete.  The raster package has an optimized routine, but I still find it to be slower than GDAL.  The problem with GDAL is that you need to install the tools on your computer before you can use them.  Below I show how the reprojection would look using R directly and then go through the workflow using GDAL, which relies on [gdalUtils package](https://cran.r-project.org/web/packages/gdalUtils/index.html).
+
+

@@ -6,17 +6,20 @@
     require(shiny)
 ################################################################################
     shinyServer(function(input, output, session){
-      #  The server reports user inputs in this example what it is doing
+      #  Check if the formula input by the user is correct and print what you
+      #   find back to the screen
+      output$print_formula <- renderText({
+        #  Require that input$formula exists before you try to do anything with
+        #   it
+        req(input$formula)
 
-      #  Render input settings to screen so user can see what is happening
-      output$print_inputs <- renderText({
-        req(input$n_obs, input$n_cov)
+        frmla <- try(formula(input$formula), silent = T)
 
-        paste(
-          "User chose", input$n_obs, "observations and", input$n_cov,
-            "covariates"
-        )
-
+        if(class(frmla) == "try-error"){
+          out <- "Sorry, but that is not a valid formula.  Try again?"
+        }else{
+          out <- "Nice work!  That is a good lookin' formula."
+        }
+      return(out)
       })
-
     })

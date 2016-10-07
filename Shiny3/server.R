@@ -4,57 +4,64 @@
 ################################################################################
     #  Load required packages
     require(shiny)
+    require(DT)
+################################################################################
+    source("utility_functions/sim_funs.R")
 ################################################################################
     shinyServer(function(input, output, session){
-      #  The server creates the dynamic UI elements in this example and reports
-      #   what it is doing
-      output$dynamic_ui <- renderUI({
-        #  Require that n_cov has a value before anything is done
-        req(input$n_cov)
+      #  Because we validate the formula below we should store that result so
+      #   we can use it and do not have to perform the same calculation again.
+      #  This step simply creates a reactive objective where we can store the
+      #   outcome of the validation step.
+      form_valid <- reactiveValues()
 
-        #  Create a text input for the coefficient name and a numeric input for
-        #   the value of the coefficient
-        #  Using a loop allows us to deal with a changing number of inputs and
-        #   creating a loop using lapply returns a list, which is the necessary
-        #   class
-        lapply(1:input$n_cov, function(i){
-          list(
-            fluidRow(
-              column(6,
-                textInput(
-                  inputId = paste0("cov_nm", i),
-                  label = ifelse(i == 1, "Name", ""),
-                  placeholder = "Name"
-                )
-              ),
-              column(6,
-                tags$div(
-                  numericInput(
-                    inputId = paste0("cov_val", i),
-                    label = ifelse(i == 1, "Value", ""),
-                    value = 0,
-                    min = -10,
-                    max = 10,
-                    step = 0.1
-                  ),
-                  style = "margin:0"
-                )
-              )
-            )
+      #  Create another reactive object to hold the result of our calculations
+      hold <- reactiveValues()
+
+      #  Check if the formula input by the user is correct and print what you
+      #   find back to the screen
+      output$print_formula <- renderText({
+        #  Require that input$formula exists before you try to do anything with
+        #   it
+        req(input$formula)
+
+        frmla <- try(formula(input$formula), silent = T)
+
+        if(class(frmla) == "try-error"){
+          form_valid$result <- FALSE
+          out <- "Sorry, but that is not a valid formula.  Try again?"
+        }else{
+          form_valid$result <- TRUE
+          out <- "Nice work!  That is a good lookin' formula."
+        }
+      return(out)
+      })
+
+      #  Show the user the simulated data in a pretty table, notice we put the
+      #   call to build_mm within this render.  This works because it is a
+      #   reactive environment.  The object hold is "global" and so it is
+      #   available to other functions too!
+      output$obs_data <- renderDataTable({
+        req(input$formula)
+
+        if(form_valid$result){
+          hold$data <- build_mm(input)
+          DT::datatable(
+            round(hold$data$mm, 2),
+            rownames = F,
+            filter = "top",
+            selection = "multiple",
+            style = "bootstrap"
           )
-        })
+        }else{
+          DT::datatable(
+            data.frame(thoughts = "this is awkward"),
+            rownames = F,
+            filter = "top",
+            selection = "multiple",
+            style = "bootstrap"
+          )
+        }
 
       })
-
-      #  Render input settings to screen so user can see what is happening
-      output$print_inputs <- renderText({
-        req(input$n_obs, input$n_cov)
-
-        paste(
-          "User chose", format(input$n_obs, big.mark = ","), "observations and",
-            input$n_cov, "covariate(s)"
-        )
-
-      })
-
     })

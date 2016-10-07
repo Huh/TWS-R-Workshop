@@ -1,17 +1,14 @@
-    #  A simple application to find MODIS tiles
-    #  Josh Nowak
-    #  08/2016
-################################################################################
     #  Load packages
     require(shiny)
     require(DT)
 ################################################################################
     #  Define user interface
     shinyUI(
-      fluidPage(
+      fixedPage(
         #  Give the page a title
-        titlePanel("Sim/Fit App"),
-
+        titlePanel("Super Cool SimFit #1"),
+        #  A little CSS to add some padding
+        tags$div(style = "padding-bottom: 25px"),
         #  Create basic layout with a sidebar on the left and tabs on the right
         sidebarLayout(
           #  The sidebarPanel holds all the elements on the left
@@ -27,42 +24,23 @@
               width = "100%"
             ),
             hr(),
-            numericInput(
-              "n_cov",
-              "Number of Covariates",
-              value = 1,
-              min = 0,
-              max = 5,
-              step = 1,
-              width = "100%"
-            ),
-            hr(),
-            numericInput(
-              "inter",
-              "Intercept Value",
-              value = 1,
-              min = -99,
-              max = 99,
-              width = "100%"
-            ),
-            hr(),
-            h4("Coefficients"),
-            uiOutput("dynamic_ui"),
-            hr(),
             #  Here we use the title argument to create a popup for to help the
             #   user
-            tags$div(title = "Enter a valid R formula (e.g. ~ cov1 + cov2) for building the model matrix",
+            tags$div(title = "Enter a valid R formula (e.g. ~ rain + temp)",
               textInput(
                 "formula",
-                "Formula",
-                placeholder = "~ rain + snow"
+                "Formula (minus response)",
+                placeholder = "~ rain + temp"
               )
             ),
             hr(),
-            radioButtons(
-              "distr",
-              "Error Distribution",
-              choices = c("Normal")#, "Binomial")
+            uiOutput("dynamic_ui"),
+            tags$div(title = "Choose a distribution for the residual error.",
+              radioButtons(
+                "distr",
+                "Error Distribution",
+                choices = "Normal"
+              )
             ),
             hr(),
             conditionalPanel(
@@ -75,22 +53,11 @@
                 value = 1
               )
             ),
-            conditionalPanel(
-              condition = "input.distr == 'Binomial'",
-              numericInput(
-                "sz",
-                "Size Parameter",
-                min = 1,
-                max = 999,
-                value = 1,
-                step = 1
-              )
-            ),
             hr(),
-            tags$div(title = "Click to create data",
+            tags$div(title = "When you are happy with your data and formula click here to fit a model to your data",
               actionButton(
-                "sim_go",
-                "Simulate Data",
+                "fit_go",
+                "Fit Model",
                 icon = icon("gears"),
                 width = "100%",
                 style = "background-color:#DC143C;color:#FFFFFF"
@@ -102,14 +69,21 @@
             tabsetPanel(type = "pills",
               tabPanel("Simulated Data",
                 hr(),
-                DT::dataTableOutput("sim_table")
+                h4("Formula Validation"),
+                verbatimTextOutput("print_formula"),
+                hr(),
+                h4("Model Matrix"),
+                DT::dataTableOutput("obs_data"),
+              value = "SimulateTab"
               ),
               tabPanel("Model Fit",
                 hr(),
-                verbatimTextOutput("fit_print")
-              )
+                verbatimTextOutput("fit_print"),
+              value = "FitTab"
+              ),
+              id = "simfit_tabs"
             )
           )
         )
-      , title = "My First App")
+      )
     )

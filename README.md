@@ -1,6 +1,8 @@
 # TWS-R-Workshop
 A progressive build of a Shiny application to simulate and fit linear models.
 
+A link to the application can be found at: [popr.cfc.umt.edu](popr.cfc.umt.edu)
+
 The purpose of this application is to demonstrate the use of Shiny while using some of the skills learned during the workshop.
 
 ### Use

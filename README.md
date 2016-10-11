@@ -1,7 +1,7 @@
 # TWS-R-Workshop
 A progressive build of a Shiny application to simulate and fit linear models (folders Shiny 1-5) and a markdown document detailing how to download and manipulate a SNODAS raster (SpatialDownload_Markdown).
 
-A link to the Shiny5 application can be found at: [popr.cfc.umt.edu](popr.cfc.umt.edu)
+A link to the Shiny5 application can be found at: [http://popr.cfc.umt.edu/](http://popr.cfc.umt.edu/)
 
 The purpose of this application is to demonstrate the use of Shiny while using some of the skills learned during the workshop.
 

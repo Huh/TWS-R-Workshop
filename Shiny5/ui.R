@@ -7,6 +7,11 @@
       fixedPage(
         #  Give the page a title
         titlePanel("Super Cool SimFit #1"),
+        #  A link to the GitHub repository containing the code and help
+        tags$a(
+          href = "https://github.com/Huh/TWS-R-Workshop",
+          "Click here to see the code repository and get help"
+        ),
         #  A little CSS to add some padding
         tags$div(style = "padding-bottom: 25px"),
         #  Create basic layout with a sidebar on the left and tabs on the right

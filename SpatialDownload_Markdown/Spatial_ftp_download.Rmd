@@ -216,6 +216,9 @@ Ahhh, we created a bunch of files.  Looking at the documentation for the data we
   #  The data are scaled, so we need to divide by 1,000 per the documentation
   depth <- depth_unscaled/1000
   
+  #  Set -9.999 to NA
+  depth[depth < 0] <- NA
+  
   #  These objects are big, so close connection and remove unscaled data from 
   #   memory
   close(depth_con);rm(depth_unscaled);gc()

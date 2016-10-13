@@ -66,17 +66,26 @@
       return(out)
       })
 
+      #  Create model matrix and get names of variables when inputs change
+      observe({
+        req(input$formula, form_valid$result)
+
+        #  If the formula is not valid then don't do anything
+        if(form_valid$result){
+          #  Build model matrix
+          hold$data <- try(build_mm(input))
+          hold$cnms <- try(colnames(hold$data$mm))
+        }
+      })
+
       #  Show the user the simulated data in a pretty table, notice we put the
       #   call to build_mm within this render.  This works because it is a
       #   reactive environment.  The object hold is "global" and so it is
       #   available to other functions too!
       output$obs_data <- renderDataTable({
-        req(input$formula)
+        req(hold$data$mm)
 
         if(form_valid$result){
-          #  Build model matrix
-          hold$data <- try(build_mm(input))
-          hold$cnms <- try(colnames(hold$data$mm))
 
           DT::datatable(
             round(hold$data$mm, 2),

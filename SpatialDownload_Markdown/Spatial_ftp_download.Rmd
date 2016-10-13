@@ -300,16 +300,19 @@ With the unzipping complete we can move on to using the data.  A nice function f
     #id_NAD83 <- subset(states_NAD83, NAME == "Idaho")
     
     #  Leaflet plot of outline of Idaho...had it to make it less boring
+    #  When knitting to Word interactive elements don't work, so replace the 
+    #   leaflet call below with a base plot
     leaflet(id_NAD83) %>%
       addPolygons(stroke = T, fillOpacity = 0) %>%
-			addProviderTiles("OpenStreetMap.Mapnik", 
+			addProviderTiles("OpenStreetMap.Mapnik",
 				group = "Street Map") %>%
 			addProviderTiles("OpenTopoMap", group = "Topo") %>%
       addProviderTiles("Esri.WorldImagery", group = "Aerial") %>%
-      addProviderTiles("NASAGIBS.ViirsEarthAtNight2012", 
+      addProviderTiles("NASAGIBS.ViirsEarthAtNight2012",
         group = "Night Time") %>%
 			addLayersControl(
 				baseGroups = c("Street Map (default)", "Topo", "Aerial", "Night Time"))
+    #plot(id_NAD83)
 ```
 
 We have now read in the shapefile, which in R is a `r class(id_NAD83)`.  We also subset polygon data of the US to just the state of Idaho.  The problem now is that our raster data (SNODAS) is in a different projection than the polygon of the state.  Before we can crop the raster with the state polygon we need to reproject one of the two data types.  In general, we want to project non-raster data to the projection of the raster data for speed.  That said, we usually choose projections for a reason and should consider the tradeoffs inherent to such choices.  If you need to project a large raster I highly recommend looking at the [gdalUtils package](https://cran.r-project.org/web/packages/gdalUtils/index.html) package.  There is a function to reproject rasters in the raster package too, but I have had better success with gdal based tools.  Anyway, let's get on with reprojecting our spatial polygon of Idaho.   

@@ -1,0 +1,10 @@
+name: SpatialDownload
+account: joshnwk
+server: shinyapps.io
+appId: 131431
+bundleId: 585147
+url: https://joshnwk.shinyapps.io/SpatialDownload/
+when: 1476316639.79587
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Spatial_ftp_download.docx|Spatial_ftp_download.Rmd

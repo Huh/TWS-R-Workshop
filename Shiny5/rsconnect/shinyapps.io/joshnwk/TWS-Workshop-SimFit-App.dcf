@@ -2,9 +2,9 @@ name: TWS-Workshop-SimFit-App
 account: joshnwk
 server: shinyapps.io
 appId: 130030
-bundleId: 579123
+bundleId: 585158
 url: https://joshnwk.shinyapps.io/TWS-Workshop-SimFit-App/
-when: 1475809297.2517
+when: 1476319608.89477
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: debug/debug.R|functions/helpers.R|functions/sim_funs.R

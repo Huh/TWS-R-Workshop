@@ -11,25 +11,22 @@
     shinyServer(function(input, output, session){
       #  Now we will add in some dynamic user inputs
       #  The inputs are described by the formula and so we will extract the
-      #   information we need and build the compnents on the server side, which
+      #   information we need and build the components on the server side, which
       #   will be sent to the user's browser
       output$dynamic_ui <- renderUI({
         #  We can't do anything until the data is built, so require it as a
         #   prerequisite before any code is run
-        req(hold$data)
-
-        #  Break out the coefficient names from the model matrix
-        cnms <- colnames(hold$data$mm)
+        req(hold$cnms)
 
         #  Create a numeric input for the value of each coefficient
         #  Using a loop allows us to deal with a changing number of inputs and
         #   creating a loop using lapply returns a list, which is the necessary
         #   class
-        lapply(1:length(cnms), function(i){
+        lapply(1:length(hold$cnms), function(i){
           tags$div(
             numericInput(
               inputId = paste0("cov", i),
-              label = paste("Effect of", cnms[i]),
+              label = paste("Effect of", hold$cnms[i]),
               value = 0,
               min = -10,
               max = 10,
@@ -76,7 +73,11 @@
         req(input$formula)
 
         if(form_valid$result){
-          hold$data <- build_mm(input)
+          #  Build model matrix
+          hold$data <- try(build_mm(input))
+          hold$cnms <- try(colnames(hold$data$mm))
+
+          #  Showt he user the data using a datatable
           DT::datatable(
             round(hold$data$mm, 2),
             rownames = F,

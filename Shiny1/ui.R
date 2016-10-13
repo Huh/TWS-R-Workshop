@@ -7,7 +7,7 @@
 ################################################################################
     #  Define user interface
     shinyUI(
-      fluidPage(
+      fixedPage(
         #  Give the page a title
         titlePanel("Basic UI Layout"),
 

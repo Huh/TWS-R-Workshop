@@ -1,8 +1,9 @@
 # TWS-R-Workshop
-A progressive build of a Shiny application to simulate and fit linear models (folders Shiny 1-5) and a markdown document detailing how to download and manipulate a SNODAS raster (SpatialDownload_Markdown).
+A progressive build of a Shiny application to simulate and fit linear models (folders Shiny 1-5) and a markdown document detailing how to download a SNODAS raster, a shapefile and a few basic spatial manipulations (SpatialDownload_Markdown).
 
-A link to the Shiny5 application can be found at: [http://popr.cfc.umt.edu/](http://popr.cfc.umt.edu/)
+A link to the Shiny5 application and the SpatialDownload document can be found at: [http://popr.cfc.umt.edu/](http://popr.cfc.umt.edu/)
 
+## Shiny Application Demo
 The purpose of this application is to demonstrate the use of Shiny while using some of the skills learned during the workshop.
 
 ### Use
@@ -19,9 +20,6 @@ The purpose of this application is to demonstrate the use of Shiny while using s
 6. When you are happy with the data and your formula click on the Fit Model button to run the model
   + You may notice a progress bar that appears ever so briefly in the bottom right corner of the screen
 7. Now you can view the results of the fitting procedure by changing to the Model Fit tab near the top center of the screen
-
-### Annoying bits
-+ The primary annoying bit is that if you are looking at the Model Fit tab and make a change in the input panel at left the dynamic inputs cease to react to your inputs until you switch back to the Simulate Data tab.  
 
 ### Interesting Shiny bits
 + The application is built in a progressive manner, see the folders of this repository
